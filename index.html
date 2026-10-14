@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Campus - Issue Reporting Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="p-2 bg-indigo-600 rounded-lg">
+          <i data-lucide="shield-alert" class="w-5 h-5 text-white"></i>
+        </div>
+        <span class="font-bold text-lg tracking-wide text-white">CampusResolve</span>
+      </div>
+      <button onclick="openModal()" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">
+        <i data-lucide="plus-circle" class="w-4 h-4"></i> Report Issue
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-6">
+
+    <!-- Hero / Metrics Section -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Reports</p>
+          <p id="totalCount" class="text-2xl font-bold text-white mt-1">0</p>
+        </div>
+        <div class="p-3 bg-blue-500/10 text-blue-400 rounded-lg">
+          <i data-lucide="inbox" class="w-6 h-6"></i>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Pending Action</p>
+          <p id="pendingCount" class="text-2xl font-bold text-amber-400 mt-1">0</p>
+        </div>
+        <div class="p-3 bg-amber-500/10 text-amber-400 rounded-lg">
+          <i data-lucide="clock" class="w-6 h-6"></i>
+        </div>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex items-center justify-between">
+        <div>
+          <p class="text-xs font-medium text-slate-400 uppercase tracking-wider">Resolved</p>
+          <p id="resolvedCount" class="text-2xl font-bold text-emerald-400 mt-1">0</p>
+        </div>
+        <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-lg">
+          <i data-lucide="check-circle" class="w-6 h-6"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls (Search & Category Filter) -->
+    <div class="flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div class="relative w-full sm:w-80">
+        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+        <input 
+          id="searchInput" 
+          type="text" 
+          placeholder="Search issues..." 
+          oninput="renderIssues()"
+          class="w-full bg-slate-900 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+        />
+      </div>
+      <select 
+        id="categoryFilter" 
+        onchange="renderIssues()"
+        class="w-full sm:w-auto bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+      >
+        <option value="All">All Categories</option>
+        <option value="Computer Lab">Computer Lab</option>
+        <option value="Classroom">Classroom</option>
+        <option value="Campus Wi-Fi">Campus Wi-Fi</option>
+        <option value="Library">Library</option>
+      </select>
+    </div>
+
+    <!-- Issue Cards Container -->
+    <div id="issuesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+  </main>
+
+  <!-- Modal Dialog -->
+  <div id="issueModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-bold text-white">Report New Campus Issue</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="issueForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Issue Title</label>
+          <input id="titleInput" required class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500" placeholder="e.g. Lab 4 PC 12 Monitor flickering" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Category</label>
+          <select id="categoryInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+            <option value="Computer Lab">Computer Lab</option>
+            <option value="Classroom">Classroom</option>
+            <option value="Campus Wi-Fi">Campus Wi-Fi</option>
+            <option value="Library">Library</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Priority</label>
+          <select id="priorityInput" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-sm font-semibold rounded-lg text-slate-300">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold rounded-lg text-white">Submit Issue</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_ISSUES = [
+      { id: '1', title: 'Lab 2 Workstation 14 Keyboard Not Responding', category: 'Computer Lab', priority: 'High', status: 'Pending', time: '10m ago' },
+      { id: '2', title: '3rd Floor Wi-Fi Router Drops Packet Connection', category: 'Campus Wi-Fi', priority: 'High', status: 'Pending', time: '1h ago' },
+      { id: '3', title: 'Room 304 Overhead Projector Color Distortion', category: 'Classroom', priority: 'Medium', status: 'Resolved', time: 'Yesterday' },
+      { id: '4', title: 'Digital Library Terminal 3 OS Activation Error', category: 'Library', priority: 'Low', status: 'Resolved', time: '2 days ago' }
+    ];
+
+    function getStoredIssues() {
+      const data = localStorage.getItem('campus_issues');
+      return data ? JSON.parse(data) : INITIAL_ISSUES;
+    }
+
+    function saveIssues(issues) {
+      localStorage.setItem('campus_issues', JSON.stringify(issues));
+    }
+
+    function renderIssues() {
+      const issues = getStoredIssues();
+      const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+      const selectedCategory = document.getElementById('categoryFilter').value;
+      const grid = document.getElementById('issuesGrid');
+
+      // Update counters
+      document.getElementById('totalCount').innerText = issues.length;
+      document.getElementById('pendingCount').innerText = issues.filter(i => i.status === 'Pending').length;
+      document.getElementById('resolvedCount').innerText = issues.filter(i => i.status === 'Resolved').length;
+
+      const filtered = issues.filter(item => {
+        const matchesQuery = item.title.toLowerCase().includes(searchQuery);
+        const matchesCat = selectedCategory === 'All' || item.category === selectedCategory;
+        return matchesQuery && matchesCat;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-500">No issues matching criteria.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => `
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 flex flex-col justify-between hover:border-slate-700 transition">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${
+                item.priority === 'High' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                item.priority === 'Medium' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                'bg-slate-700/50 text-slate-300'
+              }">${item.priority}</span>
+              <span class="text-xs ${item.status === 'Resolved' ? 'text-emerald-400' : 'text-amber-400'} font-medium flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full ${item.status === 'Resolved' ? 'bg-emerald-400' : 'bg-amber-400'}"></span>
+                ${item.status}
+              </span>
+            </div>
+            <h4 class="font-semibold text-slate-100 text-sm leading-snug">${item.title}</h4>
+          </div>
+          <div class="pt-4 mt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span class="flex items-center gap-1.5"><i data-lucide="tag" class="w-3.5 h-3.5"></i> ${item.category}</span>
+            <button onclick="toggleStatus('${item.id}')" class="text-indigo-400 hover:text-indigo-300 underline font-medium">Toggle Status</button>
+          </div>
+        </div>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function toggleStatus(id) {
+      const issues = getStoredIssues();
+      const updated = issues.map(item => {
+        if (item.id === id) {
+          return { ...item, status: item.status === 'Pending' ? 'Resolved' : 'Pending' };
+        }
+        return item;
+      });
+      saveIssues(updated);
+      renderIssues();
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const issues = getStoredIssues();
+      const newIssue = {
+        id: Date.now().toString(),
+        title: document.getElementById('titleInput').value,
+        category: document.getElementById('categoryInput').value,
+        priority: document.getElementById('priorityInput').value,
+        status: 'Pending',
+        time: 'Just now'
+      };
+      issues.unshift(newIssue);
+      saveIssues(issues);
+      document.getElementById('issueForm').reset();
+      closeModal();
+      renderIssues();
+    }
+
+    function openModal() {
+      document.getElementById('issueModal').classList.remove('hidden');
+      document.getElementById('issueModal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('issueModal').classList.add('hidden');
+      document.getElementById('issueModal').classList.remove('flex');
+    }
+
+    renderIssues();
+  </script>
+</body>
+</html>
